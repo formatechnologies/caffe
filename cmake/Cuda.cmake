@@ -2,9 +2,25 @@ if(CPU_ONLY)
   return()
 endif()
 
+# This list will be used for CUDA_ARCH = All option
+# Fermi (3.2 <= CUDA <= 8)
+set(FERMI "20 21(20)")
+# Kepler (CUDA >= 5)
+set(KEPLER "30 35 37")
+# Maxwell (CUDA >= 6)
+set(MAXWELL "50 52 53")
+# Pascal (CUDA >= 8)
+set(PASCAL "60 61 62")
+# Volta (CUDA >= 9)
+set(VOLTA "70") # set(VOLTA "70 71 72") # This crashes with CUDA 10
+# Turing (CUDA >= 10)
+set(TURING "75")
+
 # Known NVIDIA GPU achitectures Caffe can be compiled for.
 # This list will be used for CUDA_ARCH_NAME = All option
-set(Caffe_known_gpu_archs "20 21(20) 30 35 50 60 61")
+#set(Caffe_known_gpu_archs "30 35 50 52 60 61")
+# set(Caffe_known_gpu_archs "20 21(20) 30 35 50 60 61")
+set(Caffe_known_gpu_archs "${KEPLER} ${MAXWELL} ${PASCAL} ${VOLTA} ${TURING}")
 
 ################################################################################################
 # A function for automatic detection of GPUs installed  (if autodetection is enabled)
@@ -56,7 +72,8 @@ endfunction()
 #   caffe_select_nvcc_arch_flags(out_variable)
 function(caffe_select_nvcc_arch_flags out_variable)
   # List of arch names
-  set(__archs_names "Fermi" "Kepler" "Maxwell" "Pascal" "All" "Manual")
+  set(__archs_names "Kepler" "Maxwell" "Pascal" "All" "Manual")
+  # set(__archs_names "Fermi" "Kepler" "Maxwell" "Pascal" "All" "Manual")
   set(__archs_name_default "All")
   if(NOT CMAKE_CROSSCOMPILING)
     list(APPEND __archs_names "Auto")
@@ -193,7 +210,7 @@ function(detect_cuDNN)
   find_library(CUDNN_LIBRARY NAMES ${CUDNN_LIB_NAME}
    PATHS ${CUDNN_ROOT} $ENV{CUDNN_ROOT} ${CUDNN_INCLUDE} ${__libpath_hist} ${__libpath_hist}/../lib
    DOC "Path to cuDNN library.")
-  
+
   if(CUDNN_INCLUDE AND CUDNN_LIBRARY)
     set(HAVE_CUDNN  TRUE PARENT_SCOPE)
     set(CUDNN_FOUND TRUE PARENT_SCOPE)
